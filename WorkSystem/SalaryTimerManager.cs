@@ -122,12 +122,17 @@ WHERE SettingKey = 'SalaryTimerStoppedAt'",
             using SqlCommand cmd =
                 new SqlCommand(
                     @"DECLARE @StoppedAt DATETIME =
-    TRY_CONVERT(DATETIME, (SELECT SettingValue FROM AppSettings WHERE SettingKey = 'SalaryTimerStoppedAt'), 126)
+    TRY_CONVERT(
+        DATETIME,
+        NULLIF((SELECT SettingValue FROM AppSettings WHERE SettingKey = 'SalaryTimerStoppedAt'), ''),
+        126
+    )
 
 IF @StoppedAt IS NOT NULL
 BEGIN
     UPDATE Employees
-    SET LastSalaryTime = DATEADD(SECOND, DATEDIFF(SECOND, @StoppedAt, GETDATE()), LastSalaryTime)
+    SET LastSalaryTime =
+        DATEADD(SECOND, CAST(DATEDIFF_BIG(SECOND, @StoppedAt, SYSDATETIME()) AS INT), LastSalaryTime)
     WHERE LastSalaryTime IS NOT NULL
 
     UPDATE AppSettings
@@ -149,7 +154,7 @@ END",
                     @"UPDATE Employees
 SET TotalEarned = TotalEarned + (Salary * Due.FullPeriods),
     WorkedMinutes = WorkedMinutes + Due.FullPeriods,
-    LastSalaryTime = DATEADD(MILLISECOND, Due.FullPeriods * 60000, LastSalaryTime)
+    LastSalaryTime = DATEADD(MINUTE, Due.FullPeriods, LastSalaryTime)
 FROM Employees
 CROSS APPLY
 (
