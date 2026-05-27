@@ -62,7 +62,9 @@ namespace WorkSystem
         EyeColor,
         PassportNumber,
         Salary,
-        TotalEarned
+        TotalEarned,
+        WorkedMinutes,
+        LastSalaryTime
     )
     VALUES
     (
@@ -74,7 +76,9 @@ namespace WorkSystem
         @EyeColor,
         @Passport,
         @Salary,
-        0
+        0,
+        0,
+        GETDATE()
     )";
 
                 SqlCommand cmd = new SqlCommand(query, connection);

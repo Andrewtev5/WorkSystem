@@ -11,6 +11,8 @@ namespace WorkSystem
     using Microsoft.Data.SqlClient;
     public partial class EmployeesForm : Form
     {
+        private readonly System.Windows.Forms.Timer refreshTimer;
+
         private void LoadEmployees()
         {
             try
@@ -30,7 +32,9 @@ namespace WorkSystem
         FirstName,
         LastName,
         Salary,
-        TotalEarned
+        TotalEarned,
+        WorkedMinutes,
+        LastSalaryTime
         FROM Employees";
 
                 SqlDataAdapter adapter = new SqlDataAdapter(query, connection);
@@ -68,7 +72,9 @@ namespace WorkSystem
         FirstName,
         LastName,
         Salary,
-        TotalEarned
+        TotalEarned,
+        WorkedMinutes,
+        LastSalaryTime
         FROM Employees
         WHERE
         FirstName LIKE @Search
@@ -103,6 +109,11 @@ namespace WorkSystem
         public EmployeesForm()
         {
             InitializeComponent();
+
+            refreshTimer = new System.Windows.Forms.Timer();
+            refreshTimer.Interval = 5000;
+            refreshTimer.Tick += refreshTimer_Tick;
+
             AppTheme.Apply(this);
             AppTheme.StyleSecondaryButton(btnRefresh);
             AppTheme.StyleSecondaryButton(btnBack);
@@ -131,6 +142,7 @@ namespace WorkSystem
         private void EmployeesForm_Load(object sender, EventArgs e)
         {
             LoadEmployees();
+            refreshTimer.Start();
         }
 
         private void dgvEmployees_CellContentClick(object sender, DataGridViewCellEventArgs e)
@@ -289,6 +301,18 @@ namespace WorkSystem
             miEmployeeInfo.Enabled = employeeSelected;
             miEditEmployee.Enabled = employeeSelected;
             miManageSalary.Enabled = employeeSelected;
+        }
+
+        protected override void OnFormClosed(FormClosedEventArgs e)
+        {
+            refreshTimer.Stop();
+            refreshTimer.Dispose();
+            base.OnFormClosed(e);
+        }
+
+        private void refreshTimer_Tick(object? sender, EventArgs e)
+        {
+            LoadEmployees();
         }
     }
 }
