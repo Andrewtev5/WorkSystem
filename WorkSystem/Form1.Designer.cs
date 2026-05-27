@@ -39,6 +39,8 @@
             btnResetTimer = new Button();
             lblTimerState = new Label();
             lblTimerDetails = new Label();
+            payrollProgress = new ProgressBar();
+            lblPayrollPulse = new Label();
             SuspendLayout();
             // 
             // addemp
@@ -157,11 +159,35 @@
             lblTimerDetails.Text = "1 real minute = 1 worked month";
             lblTimerDetails.TextAlign = ContentAlignment.MiddleCenter;
             // 
+            // payrollProgress
+            // 
+            payrollProgress.Location = new Point(168, 393);
+            payrollProgress.Maximum = 60;
+            payrollProgress.Name = "payrollProgress";
+            payrollProgress.Size = new Size(245, 7);
+            payrollProgress.Style = ProgressBarStyle.Continuous;
+            payrollProgress.TabIndex = 11;
+            payrollProgress.Visible = false;
+            // 
+            // lblPayrollPulse
+            // 
+            lblPayrollPulse.AutoSize = false;
+            lblPayrollPulse.Font = new Font("Segoe UI", 8F, FontStyle.Bold);
+            lblPayrollPulse.Location = new Point(419, 386);
+            lblPayrollPulse.Name = "lblPayrollPulse";
+            lblPayrollPulse.Size = new Size(72, 18);
+            lblPayrollPulse.TabIndex = 12;
+            lblPayrollPulse.Text = "LIVE";
+            lblPayrollPulse.TextAlign = ContentAlignment.MiddleLeft;
+            lblPayrollPulse.Visible = false;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(581, 470);
+            Controls.Add(lblPayrollPulse);
+            Controls.Add(payrollProgress);
             Controls.Add(lblTimerDetails);
             Controls.Add(lblTimerState);
             Controls.Add(btnResetTimer);
@@ -192,5 +218,7 @@
         private Button btnResetTimer;
         private Label lblTimerState;
         private Label lblTimerDetails;
+        private ProgressBar payrollProgress;
+        private Label lblPayrollPulse;
     }
 }

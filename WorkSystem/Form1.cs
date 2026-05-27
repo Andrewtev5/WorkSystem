@@ -27,6 +27,7 @@ namespace WorkSystem
             lblSubtitle.ForeColor = AppTheme.Muted;
             lblStatus.ForeColor = AppTheme.Muted;
             lblTimerDetails.ForeColor = AppTheme.Muted;
+            lblPayrollPulse.ForeColor = AppTheme.Primary;
 
             chkDarkMode.CheckedChanged -= chkDarkMode_CheckedChanged;
             chkDarkMode.Checked = AppTheme.IsDarkMode;
@@ -57,6 +58,8 @@ namespace WorkSystem
                 {
                     SalaryTimerManager.AccrueDueSalaries();
                     salaryTimer.Start();
+                    lblPayrollPulse.Visible = true;
+                    payrollProgress.Visible = true;
                 }
 
                 UpdateTimerDisplay();
@@ -93,12 +96,14 @@ namespace WorkSystem
             {
                 if (!isSalaryTimerRunning)
                 {
-                    SalaryTimerManager.MarkSalaryClockNow();
+                    SalaryTimerManager.ResumeFromSavedStopTime();
                 }
 
                 isSalaryTimerRunning = true;
                 SalaryTimerManager.SetRunning(true);
                 salaryTimer.Start();
+                lblPayrollPulse.Visible = true;
+                payrollProgress.Visible = true;
                 UpdateTimerDisplay();
             }
             catch (Exception ex)
@@ -112,7 +117,7 @@ namespace WorkSystem
             try
             {
                 SalaryTimerManager.AccrueDueSalaries();
-                SalaryTimerManager.MarkSalaryClockNow();
+                SalaryTimerManager.SaveStopTime();
                 isSalaryTimerRunning = false;
                 SalaryTimerManager.SetRunning(false);
                 salaryTimer.Stop();
@@ -143,6 +148,8 @@ namespace WorkSystem
                 salaryTimer.Stop();
                 SalaryTimerManager.Reset();
                 isSalaryTimerRunning = false;
+                payrollProgress.Visible = false;
+                lblPayrollPulse.Visible = false;
                 UpdateTimerDisplay();
                 MessageBox.Show("Payroll timer reset successfully!");
             }
@@ -170,6 +177,7 @@ namespace WorkSystem
                 salaryTimer.Stop();
                 isSalaryTimerRunning = false;
                 SalaryTimerManager.SetRunning(false);
+                SalaryTimerManager.SaveStopTime();
                 lblStatus.Text = "Payroll timer stopped: " + ex.Message;
                 UpdateTimerDisplay();
             }
@@ -188,6 +196,22 @@ namespace WorkSystem
 
             btnStartTimer.Enabled = !isSalaryTimerRunning;
             btnStopTimer.Enabled = isSalaryTimerRunning;
+
+            if (isSalaryTimerRunning)
+            {
+                int secondsUntilNextAccrual = SalaryTimerManager.GetSecondsUntilNextAccrual();
+                int progress = Math.Clamp(60 - secondsUntilNextAccrual, 0, 60);
+
+                payrollProgress.Value = progress;
+                payrollProgress.Visible = true;
+                lblPayrollPulse.Visible = true;
+                lblPayrollPulse.Text = secondsUntilNextAccrual == 0 ? "PAY" : secondsUntilNextAccrual + "s";
+            }
+            else
+            {
+                lblPayrollPulse.Text = "PAUSED";
+                lblPayrollPulse.Visible = payrollProgress.Visible;
+            }
         }
     }
 }
